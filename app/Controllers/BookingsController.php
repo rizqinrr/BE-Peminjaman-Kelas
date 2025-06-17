@@ -21,12 +21,28 @@ class BookingsController extends ResourceController
      */
     public function index()
     {
-        $data = [
-            'message' => 'success',
-            'data_users' => $this->model->tampil()->orderBy('bookings.id_booking', 'DESC')->findAll()
-        ];
+        $bookings = $this->model->tampil()->orderBy('bookings.id_booking', 'DESC')->findAll();
 
-        return $this->response->setJSON($data, 200);
+        // Olah hasil supaya JSON hanya menampilkan nama user & nama ruangan
+        $result = array_map(function ($item) {
+            return [
+                'id_booking'   => $item['id_booking'],
+                'booking_date' => $item['booking_date'],
+                'start_date'   => $item['start_date'],
+                'end_date'     => $item['end_date'],
+                'start_time'   => $item['start_time'],
+                'end_time'     => $item['end_time'],
+                'description'  => $item['description'],
+                'status'       => $item['status'],
+                'user_name'    => $item['user_name'],    // dari tabel users
+                'room_name'    => $item['room_name'],    // dari tabel rooms
+            ];
+        }, $bookings);
+
+        return $this->response->setJSON([
+            'message' => 'success',
+            'data_users' => $result
+        ]);
     }
 
     /**

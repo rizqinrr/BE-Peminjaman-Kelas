@@ -37,11 +37,19 @@ class Me extends ResourceController
             //     'email' => $decoded->email
             // ];
 
+            $uid = $decoded->uid ?? null;
+            $urole = $decoded->role ?? null;
+
             $model = new Users();
-            $user = $model->find($decoded->uid);
+            $user = $model->find($uid);
+            $role = $model->find($urole);
 
             if (!$user) {
                 return $this->failNotFound('User tidak ditemukan');
+            }
+
+            if ($user['role'] !== $role) {
+                return $this->fail('Role tidak sesuai');
             }
 
             unset($user['password']); // agar password tidak dikirim
@@ -49,7 +57,7 @@ class Me extends ResourceController
             return $this->respond([
                 'status' => true,
                 'message' => 'Token valid. User berhasil diambil.',
-                'user' => $user
+                'user' => [$user, $role]
             ]);
         } catch (\Exception $e) {
             return $this->failUnauthorized('Token tidak valid atau sudah kedaluwarsa: ' . $e->getMessage());

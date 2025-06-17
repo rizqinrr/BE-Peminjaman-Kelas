@@ -12,7 +12,8 @@ class Home extends BaseController
         // Tampilkan pesan personal
         return $this->response->setJSON([
             'status' => true,
-            'message' => 'Halo, ' . $user->email
+            'message' => 'Halo, ' . $user->email. ', anda adalah ' .$user->role
+
         ]);
     }
 }

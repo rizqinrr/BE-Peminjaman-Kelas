@@ -34,7 +34,7 @@ class Bookings extends Model
 
     public function tampil()
     {
-        return $this->select('bookings.*, rooms.room_name, users.name')
+        return $this->select('bookings.*, rooms.room_name, users.name AS user_name')
             ->join('rooms', 'rooms.id_room = bookings.id_room')
             ->join('users', 'users.id_user = bookings.id_user');
     }

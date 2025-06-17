@@ -10,7 +10,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class Login extends BaseController
 {
-     use ResponseTrait;
+    use ResponseTrait;
 
     public function index()
     {
@@ -37,7 +37,7 @@ class Login extends BaseController
         }
 
         $verify = password_verify($this->request->getVar('password'), $user['password']);
-        if(!$verify) return $this->fail('Wrong Password');
+        if (!$verify) return $this->fail('Wrong Password');
 
         // Ambil secret key dari .env
         $key = getenv('TOKEN_SCREET');
@@ -50,7 +50,8 @@ class Login extends BaseController
             'nbf' => time(),
             'exp' => time() + (60 * 60), // token berlaku 1 jam
             'uid' => $user['id_user'],
-            'email' => $user['email']
+            'email' => $user['email'],
+            'role' => $user['role']
         ];
 
         // Generate token
