@@ -47,6 +47,4 @@ class Bookings extends Model
             ->orderBy('bookings.start_date', 'ASC')
             ->findAll();
     }
-
-    
 }
