@@ -16,12 +16,17 @@ class RoomsController extends ResourceController
      */
     public function index()
     {
+        $rooms = $this->model->orderBy('id_room', 'DESC')->findAll();
+        $total = $this->model->countAll(); // atau $this->model->totalRuang() kalau ada
+
         $data = [
+            'status' => true,
             'message' => 'success',
-            'data_users' => $this->model->orderBy('id_room', 'DESC')->findAll()
+            'total_rooms' => $total,
+            'data_rooms' => $rooms
         ];
 
-        return $this->response->setJSON($data, 200);
+        return $this->respond($data, 200);
     }
 
     /**

@@ -32,16 +32,13 @@ class Me extends ResourceController
         try {
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
 
-            // $response = [
-            //     'id' => $decoded->uid,
-            //     'email' => $decoded->email
-            // ];
-
-            $uid = $decoded->uid ?? null;
+            $id_user = $decoded->id_user ?? null;
+            $uname = $decoded->name ?? null;
             $urole = $decoded->role ?? null;
 
             $model = new Users();
-            $user = $model->find($uid);
+            $user = $model->find($id_user);
+            $name = $model->find($uname);
             $role = $model->find($urole);
 
             if (!$user) {
@@ -57,7 +54,7 @@ class Me extends ResourceController
             return $this->respond([
                 'status' => true,
                 'message' => 'Token valid. User berhasil diambil.',
-                'user' => [$user, $role]
+                'user' => [$user, $role, $name]
             ]);
         } catch (\Exception $e) {
             return $this->failUnauthorized('Token tidak valid atau sudah kedaluwarsa: ' . $e->getMessage());

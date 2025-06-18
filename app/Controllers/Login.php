@@ -49,7 +49,8 @@ class Login extends BaseController
             'iat' => time(),
             'nbf' => time(),
             'exp' => time() + (60 * 60), // token berlaku 1 jam
-            'uid' => $user['id_user'],
+            'id_user' => $user['id_user'],
+            'name' => $user['name'],
             'email' => $user['email'],
             'role' => $user['role']
         ];

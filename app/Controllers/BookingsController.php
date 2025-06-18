@@ -52,13 +52,6 @@ class BookingsController extends ResourceController
      *
      * @return ResponseInterface
      */
-    // public function show ($id_user)
-    // {
-    //     $bookingModel = new Bookings();
-    //     $data = $bookingModel->getBookingsByUser($id_user);
-
-    //     return $this->response->setJSON($data);
-    // }
 
     /**
      * Return a new resource object, with default properties.
@@ -137,50 +130,35 @@ class BookingsController extends ResourceController
      */
     public function update($id = null)
     {
-        $rules = $this->validate([
-            'id_user' => 'required',
-            'id_room' => 'required',
-            'booking_date' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'description' => 'required',
-            'status' => 'required',
-        ]);
+        // Validasi hanya field status
+    $rules = $this->validate([
+        'status' => 'required',
+    ]);
 
-        if (!$rules) {
-            $response = [
-                'message' => $this->validator->getErrors()
-            ];
-            return $this->failValidationErrors($response);
-        }
-
-        // Ambil data lama
-        $oldData = $this->model->find($id);
-        if (!$oldData) {
-            return $this->failNotFound('Data booking tidak ditemukan');
-        }
-
-        // Ambil data baru dari request
-        $newData = [
-            'id_user' => esc($this->request->getVar('id_user')),
-            'id_room' => esc($this->request->getVar('id_room')),
-            'booking_date' => esc($this->request->getVar('booking_date')),
-            'start_date' => esc($this->request->getVar('start_date')),
-            'end_date' => esc($this->request->getVar('end_date')),
-            'start_time' => esc($this->request->getVar('start_time')),
-            'end_time' => esc($this->request->getVar('end_time')),
-            'description' => esc($this->request->getVar('description')),
-            'status' => esc($this->request->getVar('status')),
+    if (!$rules) {
+        $response = [
+            'message' => $this->validator->getErrors()
         ];
+        return $this->failValidationErrors($response);
+    }
+
+    // Ambil data lama
+    $oldData = $this->model->find($id);
+    if (!$oldData) {
+        return $this->failNotFound('Data booking tidak ditemukan');
+    }
+
+    // Data baru hanya status
+    $newData = [
+        'status' => esc($this->request->getVar('status')),
+    ];
 
         // Update data booking
         $this->model->update($id, $newData);
 
         // Kirim notifikasi jika status berubah
         if ($oldData['status'] !== $newData['status']) {
-            $userId = $newData['id_user'];
+            $userId = $oldData['id_user'];
             $status = $newData['status'];
 
             switch ($status) {
@@ -190,23 +168,10 @@ class BookingsController extends ResourceController
                 case 'Declined':
                     $messageToUser = "Peminjaman Anda telah <strong>ditolak</strong>.";
                     break;
-                case 'Pending':
-                    $messageToUser = "Peminjaman Anda sedang <strong>menunggu persetujuan</strong>.";
-                    break;
-                case 'Finished':
-                    $messageToUser = "Peminjaman Anda telah <strong>selesai</strong>.";
-                    break;
                 default:
                     $messageToUser = "Status peminjaman Anda telah diperbarui.";
                     break;
             }
-
-            // Simpan ke tabel notifikasi (opsional)
-            // $this->notificationModel->insert([
-            //     'id_user' => $userId,
-            //     'message' => $messageToUser,
-            //     'is_read' => 0
-            // ]);
         }
 
         // Response ke frontend
@@ -218,13 +183,44 @@ class BookingsController extends ResourceController
         return $this->respond($response, 200);
     }
 
-    public function show($id_room = null)
+    public function show($id_booking = null)
     {
-        $data = $this->model->getBookings($id_room);
+        $dataBooking = $this->model->tampil()
+        ->where('bookings.id_booking', $id_booking)
+        ->first();
 
-        return $this->respond([
-            'status' => 'success',
-            'data' => $data
-        ], 200);
+    if (!$dataBooking) {
+        return $this->failNotFound('Data Peminjaman tidak ditemukan');
+    }
+
+    // Buat struktur JSON respons
+    $data = [
+        'message' => 'success',
+        'bookings_byid' => [
+            'id_booking'   => $dataBooking['id_booking'],
+            'booking_date' => $dataBooking['booking_date'],
+            'start_date'   => $dataBooking['start_date'],
+            'end_date'     => $dataBooking['end_date'],
+            'start_time'   => $dataBooking['start_time'],
+            'end_time'     => $dataBooking['end_time'],
+            'description'  => $dataBooking['description'],
+            'status'       => $dataBooking['status'],
+            'user_name'    => $dataBooking['user_name'],
+            'room_name'    => $dataBooking['room_name'],
+        ]
+    ];
+
+    return $this->respond($data, 200);
+    }
+
+    public function delete($id_booking = null)
+    {
+        $this->model->delete($id_booking);
+
+        $response = [
+            'messsage' => 'Data Booking berhasil dihapus'
+        ];
+
+        return $this->respondDeleted($response);
     }
 }

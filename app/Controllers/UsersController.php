@@ -16,9 +16,14 @@ class UsersController extends ResourceController
      */
     public function index()
     {
+        $users = $this->model->orderBy('id_user', 'DESC')->findAll();
+        $total = $this->model->countAll();
+
         $data = [
+            'status' => true,
             'message' => 'success',
-            'data_users' => $this->model->orderBy('id_user', 'DESC')->findAll()
+            'total_users' => $total,
+            'data_users' => $users
         ];
 
         return $this->respond($data, 200);
@@ -118,7 +123,6 @@ class UsersController extends ResourceController
             'name' => 'required',
             'status' => 'required',
             'email' => 'required',
-            'password' => 'required',
             'role' => 'required',
         ]);
 
@@ -134,7 +138,6 @@ class UsersController extends ResourceController
             'name' => esc($this->request->getVar('name')),
             'status' => esc($this->request->getVar('status')),
             'email' => esc($this->request->getVar('email')),
-            'password' => esc($this->request->getVar('password')),
             'role' => esc($this->request->getVar('role')),
         ]);
 
