@@ -6,7 +6,8 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index', ['filter' => 'auth']);
+$routes->get('/home', 'Home::index', ['filter' => 'auth']);
+$routes->get('/', 'Home::tampil');
 $routes->post('/register', 'Register::index');
 // POST http://localhost:8080/register
 

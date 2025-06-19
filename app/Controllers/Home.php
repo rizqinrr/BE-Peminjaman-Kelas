@@ -19,4 +19,8 @@ class Home extends BaseController
             'id_user'   => $user->id_user
         ]);
     }
+    public function tampil()
+    {
+        echo "hallo";
+    }
 }
